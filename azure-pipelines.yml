@@ -5,7 +5,7 @@ pr:
   - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 variables:
   pythonVersion: '3.11'
@@ -18,17 +18,19 @@ steps:
 
   - script: |
       python -m venv .venv
-      . .venv/bin/activate
+      .venv\Scripts\activate
       python -m pip install --upgrade pip
       pip install -r requirements.txt
     displayName: 'Install dependencies'
+    shell: powershell
 
   - script: |
-      . .venv/bin/activate
+      .venv\Scripts\activate
       python manage.py migrate --noinput
-      mkdir -p reports
+      if (!(Test-Path -Path reports)) { New-Item -ItemType Directory reports }
       pytest --junitxml=reports/junit.xml --maxfail=1 -q
     displayName: 'Run migrations and tests'
+    shell: powershell
 
   - task: PublishTestResults@2
     inputs:
