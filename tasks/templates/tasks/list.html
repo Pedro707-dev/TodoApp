@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>To-Do</title>
+  <link rel="stylesheet" href="{% static 'tasks/css/style.css' %}">
+  <style>
+    /* Pequeñas clases de ayuda si aún no tienes style.css cargado */
+    .inline { display:inline; margin:0; }
+    .btn { padding:6px 10px; border-radius:6px; border:none; cursor:pointer; font-size:0.9rem; }
+    .btn-done { background:#4CAF50; color:#fff; }
+    .btn-undo { background:#FFC107; color:#fff; }
+    .btn-delete { background:#E53935; color:#fff; }
+    .task-item { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .task-meta { font-size:0.9rem; color:#666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>To-Do</h1>
+
+    <!-- FORM para crear: usa la ruta 'tasks:create' -->
+    <form action="{% url 'tasks:create' %}" method="post" style="display:flex; gap:8px; margin-bottom:16px;">
+      {% csrf_token %}
+      {{ form.title }}
+      <button type="submit" class="btn" style="background:#1aa4ad; color:#fff;">Add</button>
+    </form>
+
+    <ul class="task-list" style="list-style:none; padding:0; margin:0;">
+      {% for t in tasks %}
+        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+          <div class="task-item">
+            <div>
+              <div style="font-weight:600;" class="{% if t.completed %}done{% endif %}">{{ t.title }}</div>
+              {% if t.description %}
+                <div class="task-meta">{{ t.description }}</div>
+              {% endif %}
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+              <!-- Toggle: usamos form POST -->
+              <form class="inline" action="{% url 'tasks:toggle' t.pk %}" method="post">
+                {% csrf_token %}
+                {% if t.completed %}
+                  <button type="submit" class="btn btn-undo">Undo</button>
+                {% else %}
+                  <button type="submit" class="btn btn-done">Done</button>
+                {% endif %}
+              </form>
+
+              <!-- Delete -->
+              <form class="inline" action="{% url 'tasks:delete' t.pk %}" method="post" onsubmit="return confirm('Delete this task?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-delete">Delete</button>
+              </form>
+            </div>
+          </div>
+        </li>
+      {% empty %}
+        <li style="padding:10px 0;">No tasks yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>

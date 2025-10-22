@@ -1,0 +1,77 @@
+/* Fondo degradado y tipografía */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #36bdb6, #2583a8);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* Contenedor */
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-top: 50px;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Encabezado */
+h1 {
+    text-align: center;
+    color: #14efff;
+}
+
+/* Formulario */
+form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #69bcff;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0da9cf;
+}
+
+/* Lista de tareas */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.done {
+    text-decoration: line-through;  /* Tachado (recomendado para "completado") */
+    /* O para subrayado: text-decoration: underline; */
+    color: #888;  /* Gris para indicar completado */
+    font-style: italic;  /* Opcional: cursiva */
+}
+
+.task-list li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.task-list li.completed {
+    text-decoration: line-through;
+    color: #999;
+}

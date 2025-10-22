@@ -1,0 +1,46 @@
+trigger:
+  - main
+
+pr:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.11'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(pythonVersion)'
+    displayName: 'Use Python $(pythonVersion)'
+
+  - script: |
+      python -m venv .venv
+      . .venv/bin/activate
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - script: |
+      . .venv/bin/activate
+      python manage.py migrate --noinput
+      mkdir -p reports
+      pytest --junitxml=reports/junit.xml --maxfail=1 -q
+    displayName: 'Run migrations and tests'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'reports/junit.xml'
+      mergeTestResults: true
+    condition: succeededOrFailed()
+    displayName: 'Publish test results'
+
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: 'reports'
+      artifact: 'test-reports'
+    condition: succeededOrFailed()
+    displayName: 'Publish test reports artifact'
