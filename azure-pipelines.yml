@@ -80,7 +80,7 @@ stages:
           .\.venv\Scripts\Activate.ps1
 
           # Cambiar al directorio del proyecto
-          Push-Location "$(Build.SourcesDirectory)\django-todo\todoApp"
+          Push-Location "$(Build.SourcesDirectory)
 
           $env:PYTHONPATH = "$(Build.SourcesDirectory)\todoApp"
           $env:DJANGO_SETTINGS_MODULE = "todoApp.settings"
