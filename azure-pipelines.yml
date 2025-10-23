@@ -16,13 +16,7 @@ stages:
     pool:
       name: 'MyPull'
     steps:
-    - task: Cache@2
-      displayName: 'Cache pip'
-      inputs:
-        key: 'pip | "$(Agent.OS)" | requirements.txt'
-        path: '%LOCALAPPDATA%\pip\Cache'
-        cacheHitVar: 'CACHE_RESTORED'
-
+  
     - task: PowerShell@2
       displayName: 'Prep reports directory'
       inputs:
