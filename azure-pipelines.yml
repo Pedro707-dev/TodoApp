@@ -44,7 +44,7 @@ stages:
           python -m pip install --upgrade pip
 
           # Ruta absoluta al requirements.txt
-          $reqPath = Join-Path "$(Build.SourcesDirectory)" "django-todo\requirements.txt"
+          $reqPath = Join-Path "$(Build.SourcesDirectory)" "todoApp\requirements.txt"
 
           if (Test-Path -Path $reqPath) {
               Write-Host "Installing dependencies from $reqPath ..."
