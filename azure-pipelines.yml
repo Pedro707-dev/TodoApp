@@ -16,12 +16,6 @@ stages:
     pool:
       name: 'MyPull'
     steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-        architecture: 'x64'
-      displayName: 'Use Python $(pythonVersion)'
-
     - task: Cache@2
       displayName: 'Cache pip'
       inputs:
