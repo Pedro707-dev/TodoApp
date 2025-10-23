@@ -35,7 +35,7 @@ stages:
       displayName: 'Cache pip (safe static key)'
       inputs:
         key: 'pip | "$(Agent.OS)" | static-v1'
-        path: '%LOCALAPPDATA%\pip\Cache'
+        path: '$(Build.SourcesDirectory)\todoApp\.venv\Lib\site-packages'
         cacheHitVar: 'CACHE_RESTORED'
 
     # -------------------- Instalar dependencias --------------------
