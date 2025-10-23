@@ -14,7 +14,7 @@ stages:
   jobs:
   - job: Job
     pool:
-      vmImage: 'windows-latest'
+      name: 'MyPull'
     steps:
     - task: UsePythonVersion@0
       inputs:
