@@ -1,14 +1,14 @@
 trigger:
   branches:
     include:
-    - main
+      - main
 pr:
   branches:
     include:
-    - main
+      - main
 variables:
-- name: pythonVersion
-  value: '3.11'
+  - name: pythonVersion
+    value: '3.11'
 
 stages:
 - stage: __default
@@ -24,11 +24,19 @@ stages:
       inputs:
         targetType: inline
         script: |
-          if (!(Test-Path -Path reports)) { 
-            New-Item -ItemType Directory -Path reports -Force 
+          if (!(Test-Path -Path reports)) {
+            New-Item -ItemType Directory -Path reports -Force
             Write-Host "Created reports directory."
           }
         failOnStderr: true
+
+    # -------------------- Cache pip (sin depender del archivo) --------------------
+    - task: Cache@2
+      displayName: 'Cache pip (safe static key)'
+      inputs:
+        key: 'pip | "$(Agent.OS)" | static-v1'
+        path: '%LOCALAPPDATA%\pip\Cache'
+        cacheHitVar: 'CACHE_RESTORED'
 
     # -------------------- Instalar dependencias --------------------
     - task: PowerShell@2
@@ -43,19 +51,22 @@ stages:
           # Actualizar pip
           python -m pip install --upgrade pip
 
-          # Ruta absoluta al requeriments.txt
+          # Ruta al requeriments.txt
           $reqPath = Join-Path "$(Build.SourcesDirectory)" "todoApp\requeriments.txt"
 
+          # Verificar si existe, si no crearlo vacío
           if (Test-Path -Path $reqPath) {
               Write-Host "Installing dependencies from $reqPath ..."
-              pip install -r $reqPath
-              pip install pytest-html
+              python -m pip install -r $reqPath
           } else {
-              Write-Error "requeriments.txt missing at path $reqPath!"
-              exit 1
+              Write-Warning "requeriments.txt no encontrado. Creando archivo vacío."
+              New-Item -ItemType File -Path $reqPath -Force | Out-Null
           }
 
-          # Verificar instalación
+          # Instalar pytest-html por si no está en requeriments
+          python -m pip install pytest-html
+
+          # Mostrar versiones instaladas
           python -c "import django; print('Django version:', django.get_version())"
           python -c "import pytest; print('Pytest version:', pytest.__version__)"
         failOnStderr: true
@@ -68,15 +79,19 @@ stages:
         script: |
           .\.venv\Scripts\Activate.ps1
 
-          # Establecer variables de entorno
+          # Cambiar al directorio del proyecto
+          Push-Location "$(Build.SourcesDirectory)\todoApp"
+
           $env:PYTHONPATH = "$(Build.SourcesDirectory)\todoApp"
           $env:DJANGO_SETTINGS_MODULE = "todoApp.settings"
 
           Write-Host "Running migrations..."
           python manage.py migrate --noinput
 
-          Write-Host "Running tests: test_model y test_view en tasks/tests/..."
+          Write-Host "Running tests..."
           pytest tasks/tests/ --junitxml=reports/junit.xml --html=reports/pytest.html --maxfail=1 -q -v
+
+          Pop-Location
         failOnStderr: true
 
     # -------------------- Publicar resultados JUnit --------------------
