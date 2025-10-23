@@ -64,12 +64,12 @@ stages:
         failOnStderr: true
 
         # -------------------- Cache pip (sin depender del archivo) --------------------
-    - task: Cache@2
-      displayName: 'Cache pip (safe static key)'
-      inputs:
-        key: 'pip | "$(Agent.OS)" | static-v1'
-        path: '$(Build.SourcesDirectory)\todoApp\.venv\Lib\site-packages'
-        cacheHitVar: 'CACHE_RESTORED'
+    # - task: Cache@2
+    #    displayName: 'Cache pip (safe static key)'
+    #  inputs:
+    #   key: 'pip | "$(Agent.OS)" | static-v1'
+    #  path: '$(Build.SourcesDirectory)\todoApp\.venv\Lib\site-packages'
+    # cacheHitVar: 'CACHE_RESTORED'
 
     # -------------------- Instalar dependencias --------------------
 
