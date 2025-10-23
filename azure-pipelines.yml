@@ -70,7 +70,7 @@ stages:
 
           # Establecer variables de entorno
           $env:PYTHONPATH = "$(Build.SourcesDirectory)\todoApp"
-          $env:DJANGO_SETTINGS_MODULE = "todoApp.todoApp.settings"
+          $env:DJANGO_SETTINGS_MODULE = "todoApp.settings"
 
           Write-Host "Running migrations..."
           python manage.py migrate --noinput
