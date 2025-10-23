@@ -30,15 +30,7 @@ stages:
           }
         failOnStderr: true
 
-    # -------------------- Cache pip (sin depender del archivo) --------------------
-    - task: Cache@2
-      displayName: 'Cache pip (safe static key)'
-      inputs:
-        key: 'pip | "$(Agent.OS)" | static-v1'
-        path: '$(Build.SourcesDirectory)\todoApp\.venv\Lib\site-packages'
-        cacheHitVar: 'CACHE_RESTORED'
-
-    # -------------------- Instalar dependencias --------------------
+    
     - task: PowerShell@2
       displayName: 'Install dependencies'
       inputs:
@@ -70,6 +62,16 @@ stages:
           python -c "import django; print('Django version:', django.get_version())"
           python -c "import pytest; print('Pytest version:', pytest.__version__)"
         failOnStderr: true
+
+        # -------------------- Cache pip (sin depender del archivo) --------------------
+    - task: Cache@2
+      displayName: 'Cache pip (safe static key)'
+      inputs:
+        key: 'pip | "$(Agent.OS)" | static-v1'
+        path: '$(Build.SourcesDirectory)\todoApp\.venv\Lib\site-packages'
+        cacheHitVar: 'CACHE_RESTORED'
+
+    # -------------------- Instalar dependencias --------------------
 
     # -------------------- Migraciones y tests --------------------
     - task: PowerShell@2
