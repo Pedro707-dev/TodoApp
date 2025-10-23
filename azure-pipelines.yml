@@ -38,7 +38,7 @@ stages:
             New-Item -ItemType Directory -Path reports -Force 
             Write-Host "Created reports directory."
           }
-      failOnStderr: true
+        failOnStderr: true
 
     - task: PowerShell@2
       displayName: 'Install dependencies'
