@@ -39,20 +39,29 @@ stages:
       inputs:
         targetType: inline
         script: |
+          # Crear y activar entorno virtual
           python -m venv .venv
           .\.venv\Scripts\Activate.ps1
+
+          # Actualizar pip
           python -m pip install --upgrade pip
-          if (Test-Path -Path requirements.txt) {
-            if ($env:CACHE_RESTORED -ne "true") {
-              Write-Host "Installing from requirements.txt..."
-              pip install -r requirements.txt
-            } else {
-              Write-Host "Using cached packages."
-            }
+
+          # Ruta relativa al requirements.txt
+          $reqPath = "..\requirements.txt"
+
+          if (Test-Path -Path $reqPath) {
+              if ($env:CACHE_RESTORED -ne "true") {
+                  Write-Host "Installing from requirements.txt..."
+                  pip install -r $reqPath
+              } else {
+                  Write-Host "Using cached packages."
+              }
           } else {
-            Write-Error "requirements.txt missing!"
-            exit 1
+              Write-Error "requirements.txt missing at path $reqPath!"
+              exit 1
           }
+
+          # Verificar Django y pytest
           python -c "import django; print('Django version:', django.get_version())"
           python -c "import pytest; print('Pytest version:', pytest.__version__)"
         failOnStderr: true
@@ -66,10 +75,7 @@ stages:
           Write-Host "Running migrations..."
           python manage.py migrate --noinput
           Write-Host "Running tests: test_model y test_view en tasks/tests/..."
-          # Opción 1: Automático (detecta todos test_*.py)
           pytest tasks/tests/ --junitxml=reports/junit.xml --html=reports/pytest.html --maxfail=1 -q -v
-          # Opción 2: Explícito (solo tus dos tests; descomenta si quieres)
-          # pytest tasks/tests/test_model.py tasks/tests/test_view.py --junitxml=reports/junit.xml --html=reports/pytest.html --maxfail=1 -q -v
         failOnStderr: true
 
     - task: PublishTestResults@2
@@ -87,4 +93,3 @@ stages:
         artifact: 'test-reports'
       condition: succeededOrFailed()
       displayName: 'Publish test reports artifact'
-      
