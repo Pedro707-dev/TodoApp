@@ -43,15 +43,15 @@ stages:
           # Actualizar pip
           python -m pip install --upgrade pip
 
-          # Ruta absoluta al requirements.txt
-          $reqPath = Join-Path "$(Build.SourcesDirectory)" "todoApp\requirements.txt"
+          # Ruta absoluta al requeriments.txt
+          $reqPath = Join-Path "$(Build.SourcesDirectory)" "todoApp\requeriments.txt"
 
           if (Test-Path -Path $reqPath) {
               Write-Host "Installing dependencies from $reqPath ..."
               pip install -r $reqPath
               pip install pytest-html
           } else {
-              Write-Error "requirements.txt missing at path $reqPath!"
+              Write-Error "requeriments.txt missing at path $reqPath!"
               exit 1
           }
 
