@@ -1,40 +1,88 @@
+
 trigger:
+branches:
+  include:
   - main
-
 pr:
+branches:
+  include:
   - main
-
-pool:
-  name: 'MyPull'
-
 variables:
-  pythonVersion: '3.11'
-
-steps:
+- name: pythonVersion
+value: '3.13'  # Tu preferida, con deps actualizados
+stages:
+- stage: __default
+jobs:
+- job: Job
+  pool:
+    vmImage: 'windows-latest'
+  steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '$(pythonVersion)'
+      architecture: 'x64'
     displayName: 'Use Python $(pythonVersion)'
 
-  - powershell: |
-      python -m venv .venv
-      .venv\Scripts\activate
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install dependencies'
+  - task: Cache@2
+    displayName: 'Cache pip'
+    inputs:
+      key: 'pip | "$(Agent.OS)" | requirements.txt'
+      path: '%LOCALAPPDATA%\pip\Cache'
+      cacheHitVar: 'CACHE_RESTORED'
 
-  - powershell: |
-      .venv\Scripts\activate
-      python manage.py migrate --noinput
-      if (!(Test-Path -Path reports)) { New-Item -ItemType Directory reports }
-      pytest --junitxml=reports/junit.xml --maxfail=1 -q
+  - task: PowerShell@2
+    displayName: 'Prep reports directory'
+    inputs:
+      targetType: inline
+      script: |
+        if (!(Test-Path -Path reports)) { 
+          New-Item -ItemType Directory -Path reports -Force 
+          Write-Host "Created reports directory."
+        }
+    failOnStderr: true
+
+  - task: PowerShell@2
+    displayName: 'Install dependencies'
+    inputs:
+      targetType: inline
+      script: |
+        python -m venv .venv
+        .\.venv\Scripts\Activate.ps1
+        python -m pip install --upgrade pip
+        if (Test-Path -Path requirements.txt) {
+          if ($env:CACHE_RESTORED -ne "true") {
+            Write-Host "Installing from requirements.txt..."
+            pip install -r requirements.txt
+          } else {
+            Write-Host "Using cached packages."
+          }
+        } else {
+          Write-Error "requirements.txt missing!"
+          exit 1
+        }
+        # Verifica (ahora con 3.13 compat)
+        python -c "import django; print('Django version:', django.get_version())"
+        python -c "import pytest; print('Pytest version:', pytest.__version__)"
+      failOnStderr: true
+
+  - task: PowerShell@2
     displayName: 'Run migrations and tests'
+    inputs:
+      targetType: inline
+      script: |
+        .\.venv\Scripts\Activate.ps1
+        Write-Host "Running migrations..."
+        python manage.py migrate --noinput
+        Write-Host "Running pytest..."
+        pytest --junitxml=reports/junit.xml --html=reports/pytest.html --maxfail=1 -q -v
+      failOnStderr: true
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'reports/junit.xml'
       mergeTestResults: true
+      publishRunAttachments: true
     condition: succeededOrFailed()
     displayName: 'Publish test results'
 
