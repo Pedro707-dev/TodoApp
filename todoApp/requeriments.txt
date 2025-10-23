@@ -1,0 +1,3 @@
+Django==5.1.1
+pytest==8.3.3
+pytest-django==4.11.1git status 
