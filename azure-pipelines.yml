@@ -49,6 +49,7 @@ stages:
           if (Test-Path -Path $reqPath) {
               Write-Host "Installing dependencies from $reqPath ..."
               pip install -r $reqPath
+              pip install pytest-html
           } else {
               Write-Error "requirements.txt missing at path $reqPath!"
               exit 1
