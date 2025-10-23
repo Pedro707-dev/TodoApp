@@ -67,6 +67,11 @@ stages:
         targetType: inline
         script: |
           .\.venv\Scripts\Activate.ps1
+
+          # Establecer variables de entorno
+          $env:PYTHONPATH = "$(Build.SourcesDirectory)\todoApp"
+          $env:DJANGO_SETTINGS_MODULE = "todoApp.todoApp.settings"
+
           Write-Host "Running migrations..."
           python manage.py migrate --noinput
 
